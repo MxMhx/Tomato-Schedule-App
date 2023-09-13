@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:line_icons/line_icons.dart';
 
 class TaskCard extends StatelessWidget {
   const TaskCard({super.key});

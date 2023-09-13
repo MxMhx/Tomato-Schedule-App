@@ -8,7 +8,7 @@ class AppTheme {
 
   static final ThemeData darkTheme = ThemeData(
     primaryColor: const Color.fromRGBO(241, 0, 88, 1.0),
-    scaffoldBackgroundColor: const Color.fromARGB(255, 15, 1, 25),
+    scaffoldBackgroundColor: const Color.fromARGB(255, 27, 23, 39),
     fontFamily: 'Kanit',
     textTheme: textTheme(),
   );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'screens.dart';
 
 class TaskDateScreen extends StatefulWidget {
   const TaskDateScreen({super.key});
@@ -36,15 +37,25 @@ class _TaskDateScreenState extends State<TaskDateScreen> {
                 child: Row(
                   children: [
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        '+ Add task',
-                        style: Theme.of(context).textTheme.headlineSmall,
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AddTask(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(15)),
+                        child: Text(
+                          '+ Add task',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
                       ),
                     ),
                   ],

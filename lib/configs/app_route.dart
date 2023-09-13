@@ -10,6 +10,8 @@ class AppRouter {
         return LoadingScreen.route();
       case '/home':
         return HomeScreen.route();
+      case '/addtask':
+        return AddTask.route();
       default:
         return _errorRoute();
     }
