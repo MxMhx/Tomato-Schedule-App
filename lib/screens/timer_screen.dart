@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class TimerScreen extends StatefulWidget {
   const TimerScreen({super.key});
@@ -45,25 +46,17 @@ class _TimerScreenState extends State<TimerScreen> {
             ValueListenableBuilder<int>(
               valueListenable: _notifier,
               builder: (context, value, child) {
-                return Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.blue,
-                      width: 10,
-                    ),
+                double percent = (value / _secondsRemaining);
+                return CircularPercentIndicator(
+                  radius: 150.0,
+                  lineWidth: 20.0,
+                  percent: percent,
+                  center: Text(
+                    value.toString(),
+                    style: Theme.of(context).textTheme.displayLarge,
                   ),
-                  child: Center(
-                    child: Text(
-                      value.toString(),
-                      style: const TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  circularStrokeCap: CircularStrokeCap.round,
+                  progressColor: Colors.white,
                 );
               },
             ),

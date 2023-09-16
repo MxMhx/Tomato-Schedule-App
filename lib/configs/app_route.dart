@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tomato_schedule/main.dart';
 import 'package:tomato_schedule/screens/screens.dart';
 
 class AppRouter {
@@ -12,6 +13,10 @@ class AppRouter {
         return HomeScreen.route();
       case '/addtask':
         return AddTask.route();
+      case '/login':
+        return LoginScreen.route();
+      case NavBarView.routeName:
+        return NavBarView.route();
       default:
         return _errorRoute();
     }

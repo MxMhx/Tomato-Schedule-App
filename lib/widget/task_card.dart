@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tomato_schedule/model/task_model.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({super.key});
+  const TaskCard({super.key, required this.task});
+
+  final Task task;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +15,7 @@ class TaskCard extends StatelessWidget {
         margin: const EdgeInsets.only(right: 15, top: 15),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.pink,
+          color: Color(int.parse(task.color)),
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
@@ -32,10 +35,10 @@ class TaskCard extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                          text: 'Physic\n',
+                          text: '${task.title}\n',
                           style: Theme.of(context).textTheme.displaySmall),
                       TextSpan(
-                        text: 'Chapter 3 : I dont',
+                        text: task.description,
                         style: Theme.of(context).textTheme.bodyLarge,
                       )
                     ],
@@ -53,15 +56,16 @@ class TaskCard extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            taskAttribute(context, Icons.timer, '09:30 - 12:30'),
+            taskAttribute(
+                context, Icons.timer, '${task.startTime} - ${task.endTime}'),
             const SizedBox(
               height: 10,
             ),
-            taskAttribute(context, Icons.task_alt_rounded, 'in progess'),
+            taskAttribute(context, Icons.task_alt_rounded, task.status),
             const SizedBox(
               height: 10,
             ),
-            taskAttribute(context, Icons.place, 'KMITL A Room'),
+            taskAttribute(context, Icons.notification_add_rounded, task.repeat),
           ],
         ),
       ),

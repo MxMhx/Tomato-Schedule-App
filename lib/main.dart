@@ -1,58 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tomato_schedule/bloc/bloc_observer.dart';
+import 'package:tomato_schedule/bloc/blocs.dart';
+import 'package:tomato_schedule/configs/config.dart';
 import 'package:tomato_schedule/configs/theme.dart';
 import 'package:tomato_schedule/screens/screens.dart';
 import 'package:tomato_schedule/configs/app_route.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:tomato_schedule/repositories/authentication_repository.dart';
 
-void main() {
-  runApp(AppView(AppRouter()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = const MyBlocObserver();
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  preferences.remove(taskKey);
+  FlutterSecureStorage storage = const FlutterSecureStorage();
+  await storage.delete(key: userKey);
+  runApp(const MainApp());
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MainApp> createState() => _MainAppState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MainAppState extends State<MainApp> {
+  late final AuthenticationRepository _authenticationRepository;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    _authenticationRepository = AuthenticationRepository();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _authenticationRepository.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+    return MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider.value(
+              value: (context) => _authenticationRepository),
+        ],
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+                create: (_) => AuthenticationBloc(
+                    authenticationRepository: _authenticationRepository)),
+            BlocProvider(
+                create: (_) => LoginBloc(
+                      authenticationRepository: _authenticationRepository,
+                    )),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+          child: AppView(AppRouter()),
+        ));
   }
 }
 
@@ -78,14 +87,36 @@ class _AppViewState extends State<AppView> {
       initialRoute: LoadingScreen.routeName,
       navigatorKey: _navigatorKey,
       builder: (context, child) {
-        return Navigator(
-          key: _navigatorKey,
-          initialRoute: LoadingScreen.routeName,
-          onGenerateRoute: (settings) {
-            return MaterialPageRoute(
-              builder: (context) => const NavBarView(),
-            );
+        return BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            if (state is LoginFailed) {
+              _navigator.pushNamedAndRemoveUntil<void>(
+                LoginScreen.routeName,
+                (route) => false,
+              );
+            }
           },
+          child: BlocListener<AuthenticationBloc, AuthenticationState>(
+            listener: (context, state) {
+              switch (state.status) {
+                case AuthenticationStatus.authenticated:
+                  _navigator.pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => const NavBarView()),
+                      (route) => false);
+                  break;
+                case AuthenticationStatus.unauthenticated:
+                  _navigator.pushNamedAndRemoveUntil<void>(
+                    LoginScreen.routeName,
+                    (route) => false,
+                  );
+                  break;
+                case AuthenticationStatus.unknown:
+                  break;
+              }
+            },
+            child: child,
+          ),
         );
       },
     );
@@ -94,6 +125,15 @@ class _AppViewState extends State<AppView> {
 
 class NavBarView extends StatefulWidget {
   const NavBarView({super.key});
+
+  static const routeName = '/navbar';
+
+  static Route route() {
+    return MaterialPageRoute(
+      settings: const RouteSettings(name: routeName),
+      builder: (_) => const NavBarView(),
+    );
+  }
 
   @override
   State<NavBarView> createState() => _NavBarViewState();
